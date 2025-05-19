@@ -15,6 +15,7 @@ import { useLayoutMaxWidth } from '@chainlit/app/src/hooks/useLayoutMaxWidth';
 import { useUpload } from '@chainlit/app/src/hooks/useUpload';
 import { IAttachment, attachmentsState } from '@chainlit/app/src/state/chat';
 import {
+  ThreadHistory,
   threadHistoryState,
   useChatData,
   useChatInteract,
@@ -62,22 +63,25 @@ const Chat = () => {
       const attachements: IAttachment[] = payloads.map((file) => {
         const id = uuidv4();
 
-        const { xhr, promise } = uploadFileRef.current(file, (progress) => {
-          setAttachments((prev) =>
-            prev.map((attachment) => {
-              if (attachment.id === id) {
-                return {
-                  ...attachment,
-                  uploadProgress: progress
-                };
-              }
-              return attachment;
-            })
-          );
-        });
+        const { xhr, promise } = uploadFileRef.current(
+          file,
+          (progress: number) => {
+            setAttachments((prev) =>
+              prev.map((attachment) => {
+                if (attachment.id === id) {
+                  return {
+                    ...attachment,
+                    uploadProgress: progress
+                  };
+                }
+                return attachment;
+              })
+            );
+          }
+        );
 
         promise
-          .then((res) => {
+          .then((res: { id: string }) => {
             setAttachments((prev) =>
               prev.map((attachment) => {
                 if (attachment.id === id) {
@@ -94,7 +98,7 @@ const Chat = () => {
               })
             );
           })
-          .catch((error) => {
+          .catch((error: Error) => {
             toast.error(`Failed to upload ${file.name}: ${error.message}`);
             setAttachments((prev) =>
               prev.filter((attachment) => attachment.id !== id)
@@ -139,7 +143,7 @@ const Chat = () => {
   });
 
   useEffect(() => {
-    setThreads((prev) => ({
+    setThreads((prev: ThreadHistory | undefined) => ({
       ...prev,
       currentThreadId: undefined
     }));

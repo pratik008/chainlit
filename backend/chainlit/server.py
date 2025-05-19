@@ -210,7 +210,8 @@ app.mount(f"{config.run.root_path}/ws/socket.io", asgi_app)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=config.project.allow_origins,
+    # allow_origins=config.project.allow_origins,
+    allow_origins=["http://localhost:8001", "http://localhost:8000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
