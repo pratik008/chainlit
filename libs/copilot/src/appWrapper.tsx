@@ -18,6 +18,10 @@ interface Props {
 }
 
 export default function AppWrapper({ widgetConfig }: Props) {
+  console.log(
+    'CHAINLIT_COPILOT_WIDGET (AppWrapper): AppWrapper function execution started. Config:',
+    widgetConfig
+  );
   const additionalQueryParams = widgetConfig?.additionalQueryParamsForAPI;
   const apiClient = makeApiClient(
     widgetConfig.chainlitServer,
@@ -133,12 +137,35 @@ export default function AppWrapper({ widgetConfig }: Props) {
       const targetOrigin = widgetConfig.lwcParentOrigin || '*';
 
       console.log(
-        `CHAINLIT_COPILOT_WIDGET (AppWrapper): Posting message to parent (LWC):`,
-        messageToLWC,
-        `Target Origin: ${targetOrigin}`
+        `CHAINLIT_COPILOT_WIDGET (AppWrapper): Preparing to post message to parent. Target Origin: ${targetOrigin}`,
+        messageToLWC
       );
       if (window.parent && window.parent !== window) {
+        try {
+          console.log(
+            'CHAINLIT_COPILOT_WIDGET (AppWrapper): Attempting to access window.parent.location.href:',
+            window.parent.location.href
+          );
+        } catch (e) {
+          if (e instanceof Error) {
+            console.warn(
+              'CHAINLIT_COPILOT_WIDGET (AppWrapper): Error accessing window.parent.location.href:',
+              e.message
+            );
+          } else {
+            console.warn(
+              'CHAINLIT_COPILOT_WIDGET (AppWrapper): Error accessing window.parent.location.href: An unknown error occurred',
+              e
+            );
+          }
+        }
+        console.log(
+          'CHAINLIT_COPILOT_WIDGET (AppWrapper): window.parent is valid. Attempting postMessage.'
+        );
         window.parent.postMessage(messageToLWC, targetOrigin);
+        console.log(
+          'CHAINLIT_COPILOT_WIDGET (AppWrapper): postMessage to parent (LWC) has been called.'
+        );
       } else {
         console.warn(
           'CHAINLIT_COPILOT_WIDGET (AppWrapper): No parent window found. CopilotFunction call will not be sent.'
